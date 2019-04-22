@@ -2,14 +2,14 @@
 panic = 'unwind'
 
 [[bin]]
-name = 'node-template'
+name = 'substratekitties'
 path = 'src/main.rs'
 
 [package]
 authors = ['Parity Technologies <admin@parity.io>']
 build = 'build.rs'
 edition = '2018'
-name = 'node-template'
+name = 'substratekitties'
 version = '1.0.0'
 
 [dependencies]
@@ -47,7 +47,7 @@ git = 'https://github.com/paritytech/substrate.git'
 package = 'substrate-network'
 rev = '6dfc3e8b057bb00322136251a0f10305fbb1ad8f'
 
-[dependencies.node-template-runtime]
+[dependencies.substratekitties-runtime]
 path = 'runtime'
 
 [dependencies.primitives]
