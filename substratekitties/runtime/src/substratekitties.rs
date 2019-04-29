@@ -24,16 +24,18 @@ decl_event!(
     pub enum Event<T>
     where
         <T as system::Trait>::AccountId,
-        <T as system::Trait>::Hash
+        <T as system::Trait>::Hash,
+        <T as balances::Trait>::Balance
     {
         Created(AccountId, Hash),
+        PriceSet(AccountId, Hash, Balance),
     }
 );
 
 decl_storage! {
     trait Store for Module<T: Trait> as KittyStorage {
-        Kitties: map T::Hash => Kitty<T::Hash, T::Balance>;
-        KittyOwner: map T::Hash => Option<T::AccountId>;
+        Kitties get(kitty): map T::Hash => Kitty<T::Hash, T::Balance>;
+        KittyOwner get(owner_of): map T::Hash => Option<T::AccountId>;
 
         AllKittiesArray get(kitty_by_index): map u64 => T::Hash;
         AllKittiesCount get(all_kitties_count): u64;
@@ -67,6 +69,25 @@ decl_module! {
 
             Self::mint(sender, random_hash, new_kitty)?;
             <Nonce<T>>::mutate(|n| *n += 1);
+
+            Ok(())
+        }
+
+        fn set_price(origin, kitty_id: T::Hash, new_price: T::Balance) -> Result {
+            let sender = ensure_signed(origin)?;
+
+            ensure!(Kitties::<T>::exists(kitty_id), "kitty doesn't exist");
+
+            let owner = Self::owner_of(kitty_id).ok_or("kitty owner doesn't exist")?;
+            ensure!(owner == sender, "You are not the owner of this kitty");
+
+            let mut kitty = Self::kitty(kitty_id);
+
+            kitty.price = new_price;
+
+            Kitties::<T>::insert(kitty.id, kitty);
+
+            Self::deposit_event(RawEvent::PriceSet(sender, kitty_id, new_price));
 
             Ok(())
         }
